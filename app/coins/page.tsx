@@ -7,19 +7,26 @@ import DataTable from '@/components/DataTable';
 import CoinsPagination from '@/components/CoinsPagination';
 
 const Coins = async ({ searchParams }: NextPageProps) => {
-  const { page } = await searchParams;
+  const { page, category } = await searchParams;
 
   const currentPage = Number(page) || 1;
   const perPage = 10;
+  const currentCategory = typeof category === 'string' ? category : '';
 
-  const coinsData = await fetcher<CoinMarketData[]>('/coins/markets', {
+  const fetchParams: Record<string, string | number> = {
     vs_currency: 'usd',
     order: 'market_cap_desc',
     per_page: perPage,
     page: currentPage,
     sparkline: 'false',
     price_change_percentage: '24h',
-  });
+  };
+
+  if (currentCategory) {
+    fetchParams.category = currentCategory;
+  }
+
+  const coinsData = await fetcher<CoinMarketData[]>('/coins/markets', fetchParams);
 
   const columns: DataTableColumn<CoinMarketData>[] = [
     {

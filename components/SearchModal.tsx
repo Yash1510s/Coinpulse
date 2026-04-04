@@ -130,7 +130,11 @@ const SearchModal = () => {
           style={{ backgroundColor: 'rgba(0, 0, 0, 0.6)', backdropFilter: 'blur(4px)' }}
           onClick={handleBackdropClick}
         >
-          <div ref={dialogRef} className="dialog rounded-lg border border-dark-400 shadow-2xl w-full" role="dialog">
+          <div
+            ref={dialogRef}
+            className="dialog rounded-lg border border-dark-400 shadow-2xl w-full"
+            role="dialog"
+          >
             {/* Search Input */}
             <div className="cmd-input flex items-center gap-3 px-4 py-3 border-b border-dark-400">
               <Search size={18} className="text-purple-100 shrink-0" />
@@ -143,7 +147,11 @@ const SearchModal = () => {
                 onKeyDown={handleKeyDown}
                 className="flex-1 bg-transparent border-none outline-none text-white text-sm placeholder:text-purple-100"
               />
-              <button aria-label="Close search" onClick={() => setIsOpen(false)} className="text-purple-100 hover:text-white cursor-pointer">
+              <button
+                aria-label="Close search"
+                onClick={() => setIsOpen(false)}
+                className="text-purple-100 hover:text-white cursor-pointer"
+              >
                 <X size={18} />
               </button>
             </div>

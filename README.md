@@ -13,7 +13,6 @@
 <img src="https://img.shields.io/badge/-CoinGecko-06D6A0?style=for-the-badge&logo=coingecko&logoColor=white" />
 <img src="https://img.shields.io/badge/-CodeRabbit-FF6B6B?style=for-the-badge&logo=coderabbit&logoColor=white" />
 
-
   </div>
 
   <h3 align="center">CryptoPulse — Analytics Dashboard</h3>

@@ -5,6 +5,8 @@ import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import SearchModal from '@/components/SearchModal';
+import { ConnectButton } from '@rainbow-me/rainbowkit';
+import { CategorySelector } from '@/components/CategorySelector';
 
 const Header = () => {
   const pathname = usePathname();
@@ -28,6 +30,7 @@ const Header = () => {
           </Link>
 
           <SearchModal />
+          <CategorySelector />
 
           <Link
             href="/coins"
@@ -37,6 +40,15 @@ const Header = () => {
           >
             All Coins
           </Link>
+
+          <ConnectButton
+            accountStatus={{
+              smallScreen: 'avatar',
+              largeScreen: 'full',
+            }}
+            chainStatus="icon"
+            showBalance={false}
+          />
         </nav>
       </div>
     </header>
@@ -44,4 +56,3 @@ const Header = () => {
 };
 
 export default Header;
-

@@ -1,5 +1,6 @@
 import React from 'react';
 import { fetcher, getPools } from '@/lib/coingecko.actions';
+import { getTokenSecurityScore } from '@/lib/security.actions';
 import Link from 'next/link';
 import { ArrowUpRight } from 'lucide-react';
 import { formatCurrency } from '@/lib/utils';
@@ -13,7 +14,7 @@ const Page = async ({ params }: NextPageProps) => {
     fetcher<CoinDetailsData>(`/coins/${id}`, {
       dex_pair_format: 'contract_address',
     }),
-    fetcher<OHLCData>(`/coins/${id}/ohlc`, {
+    fetcher<OHLCData[]>(`/coins/${id}/ohlc`, {
       vs_currency: 'usd',
       days: 1,
       precision: 'full',
@@ -27,6 +28,36 @@ const Page = async ({ params }: NextPageProps) => {
   const contractAddress = platform?.contract_address || null;
 
   const pool = await getPools(id, network, contractAddress);
+
+  const NETWORK_TO_CHAIN_ID: Record<string, string> = {
+    ethereum: '1',
+    eth: '1',
+    'binance-smart-chain': '56',
+    bsc: '56',
+    'polygon-pos': '137',
+    polygon: '137',
+    arbitrum: '42161',
+    arb: '42161',
+    'optimistic-ethereum': '10',
+    optimism: '10',
+    avalanche: '43114',
+    avax: '43114',
+    base: '8453',
+    linea: '59144',
+    fantom: '250',
+    ftm: '250',
+    cronos: '25',
+    cro: '25',
+  };
+
+  let securityScore: SecurityScore | null = null;
+  if (contractAddress && (network || coinData.asset_platform_id)) {
+    const chainId =
+      NETWORK_TO_CHAIN_ID[network ?? ''] || NETWORK_TO_CHAIN_ID[coinData.asset_platform_id ?? ''];
+    if (chainId) {
+      securityScore = await getTokenSecurityScore(chainId, contractAddress);
+    }
+  }
 
   const coinDetails = [
     {
@@ -64,7 +95,13 @@ const Page = async ({ params }: NextPageProps) => {
   return (
     <main id="coin-details-page">
       <section className="primary">
-        <LiveDataWrapper coinId={id} poolId={pool.id} coin={coinData} coinOHLCData={coinOHLCData}>
+        <LiveDataWrapper
+          coinId={id}
+          poolId={pool.id}
+          coin={coinData}
+          coinOHLCData={coinOHLCData}
+          securityScore={securityScore}
+        >
           <h4>Exchange Listings</h4>
         </LiveDataWrapper>
       </section>

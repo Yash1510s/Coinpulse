@@ -7,10 +7,17 @@ import {
   TrendingCoinsFallback,
 } from '@/components/home/fallback';
 import Categories from '@/components/home/Categories';
+import { WalletInfo } from '@/components/WalletInfo';
+import { WatchlistSection } from '@/components/WatchlistSection';
 
-const Page = async () => {
+const Page = async ({ searchParams }: { searchParams: Promise<{ [key: string]: string | string[] | undefined }> }) => {
+  const params = await searchParams;
+  const currentCategory = typeof params?.category === 'string' ? params.category : '';
+
   return (
     <main className="main-container">
+      <WalletInfo />
+
       <section className="home-grid">
         <Suspense fallback={<CoinOverviewFallback />}>
           <CoinOverview />
@@ -21,9 +28,11 @@ const Page = async () => {
         </Suspense>
       </section>
 
+      <WatchlistSection />
+
       <section className="w-full mt-7 space-y-4">
         <Suspense fallback={<CategoriesFallback />}>
-          <Categories />
+          <Categories categoryId={currentCategory} />
         </Suspense>
       </section>
     </main>

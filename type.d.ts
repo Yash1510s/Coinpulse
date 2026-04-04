@@ -1,5 +1,11 @@
 type OHLCData = [number, number, number, number, number];
 
+interface SecurityScore {
+  score: number;
+  status: string;
+  risks: string[];
+}
+
 interface NextPageProps {
   params: Promise<{ [key: string]: string }>;
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
@@ -13,8 +19,8 @@ interface CandlestickChartProps {
   children?: React.ReactNode;
   mode?: 'historical' | 'live';
   initialPeriod?: Period;
-  liveInterval: '1s' | '1m';
-  setLiveInterval: (interval: '1s' | '1m') => void;
+  liveInterval?: '1s' | '1m';
+  setLiveInterval?: (interval: '1s' | '1m') => void;
 }
 
 interface ConverterProps {
@@ -227,6 +233,7 @@ interface LiveDataProps {
   poolId: string;
   coin: CoinDetailsData;
   coinOHLCData?: OHLCData[];
+  securityScore?: SecurityScore | null;
   children?: React.ReactNode;
 }
 
@@ -237,6 +244,7 @@ interface LiveCoinHeaderProps {
   livePriceChangePercentage24h: number;
   priceChangePercentage30d: number;
   priceChange24h: number;
+  securityScore?: SecurityScore | null;
 }
 
 interface Category {

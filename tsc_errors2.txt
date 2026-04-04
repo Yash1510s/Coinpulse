@@ -1,0 +1,3 @@
+app/coins/[id]/page.tsx(91,11): error TS2322: Type 'OHLCData' is not assignable to type 'OHLCData[]'.
+  Type 'number' is not assignable to type 'OHLCData'.
+components/home/CoinOverview.tsx(23,10): error TS2739: Type '{ children: Element; data: OHLCData[]; coinId: string; }' is missing the following properties from type 'CandlestickChartProps': liveInterval, setLiveInterval

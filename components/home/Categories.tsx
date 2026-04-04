@@ -4,31 +4,52 @@ import Image from 'next/image';
 import { cn, formatCurrency, formatPercentage } from '@/lib/utils';
 import { TrendingDown, TrendingUp } from 'lucide-react';
 import { CategoriesFallback } from './fallback';
+import Link from 'next/link';
 
-const Categories = async () => {
+const TopCoins = async ({ categoryId = '' }: { categoryId?: string }) => {
   try {
-    const categories = await fetcher<Category[]>('/coins/categories');
+    let apiUrl = '/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=20&page=1&sparkline=false';
+    
+    if (categoryId) {
+      apiUrl += `&category=${categoryId}`;
+    }
 
-    const columns: DataTableColumn<Category>[] = [
-      { header: 'Category', cellClassName: 'category-cell', cell: (category) => category.name },
+    const coins = await fetcher<CoinMarketData[]>(apiUrl);
+
+    const columns: DataTableColumn<CoinMarketData>[] = [
       {
-        header: 'Top Gainers',
-        cellClassName: 'top-gainers-cell',
-        cell: (category) =>
-          category.top_3_coins.map((coin) => (
-            <Image src={coin} alt={coin} key={coin} width={28} height={28} />
-          )),
+        header: '#',
+        cellClassName: 'text-sm font-medium w-12',
+        cell: (coin) => coin.market_cap_rank,
+      },
+      {
+        header: 'Coin',
+        cellClassName: 'category-cell',
+        cell: (coin) => (
+          <Link href={`/coins/${coin.id}`} className="flex items-center gap-2 hover:opacity-80 transition-opacity">
+            <Image src={coin.image} alt={coin.name} width={28} height={28} className="rounded-full" />
+            <div>
+              <p className="font-semibold text-sm">{coin.name}</p>
+              <p className="text-xs text-gray-400 uppercase">{coin.symbol}</p>
+            </div>
+          </Link>
+        ),
+      },
+      {
+        header: 'Price',
+        cellClassName: 'font-medium',
+        cell: (coin) => formatCurrency(coin.current_price),
       },
       {
         header: '24h Change',
         cellClassName: 'change-header-cell',
-        cell: (category) => {
-          const isTrendingUp = category.market_cap_change_24h > 0;
+        cell: (coin) => {
+          const isTrendingUp = coin.price_change_percentage_24h > 0;
 
           return (
             <div className={cn('change-cell', isTrendingUp ? 'text-green-500' : 'text-red-500')}>
               <p className="flex items-center">
-                {formatPercentage(category.market_cap_change_24h)}
+                {formatPercentage(coin.price_change_percentage_24h)}
                 {isTrendingUp ? (
                   <TrendingUp width={16} height={16} />
                 ) : (
@@ -42,31 +63,26 @@ const Categories = async () => {
       {
         header: 'Market Cap',
         cellClassName: 'market-cap-cell',
-        cell: (category) => formatCurrency(category.market_cap),
-      },
-      {
-        header: '24h Volume',
-        cellClassName: 'volume-cell',
-        cell: (category) => formatCurrency(category.volume_24h),
+        cell: (coin) => formatCurrency(coin.market_cap),
       },
     ];
 
     return (
-      <div id="categories" className="custom-scrollbar">
-        <h4>Top Categories</h4>
+      <div id="top-coins" className="custom-scrollbar">
+        <h4 className="font-bold text-lg mb-4">Top Cryptocurrencies by Market Cap</h4>
 
         <DataTable
           columns={columns}
-          data={categories?.slice(0, 10)}
-          rowKey={(_, index) => index}
+          data={coins}
+          rowKey={(coin) => coin.id}
           tableClassName="mt-3"
         />
       </div>
     );
   } catch (error) {
-    console.error('Error fetching categories:', error);
+    console.error('Error fetching top coins:', error);
     return <CategoriesFallback />;
   }
 };
 
-export default Categories;
+export default TopCoins;

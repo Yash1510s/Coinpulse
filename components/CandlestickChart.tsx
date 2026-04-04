@@ -128,6 +128,7 @@ const CandlestickChart = ({
       chartRef.current?.timeScale().fitContent();
       prevOhlcDataLength.current = ohlcData.length;
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ohlcData, period, liveOhlcv, mode]);
 
   return (

@@ -17,14 +17,14 @@ export function formatCurrency(
   }
 
   if (showSymbol === undefined || showSymbol === true) {
-    return value.toLocaleString(undefined, {
+    return value.toLocaleString('en-US', {
       style: 'currency',
       currency: currency?.toUpperCase() || 'USD',
       minimumFractionDigits: digits ?? 2,
       maximumFractionDigits: digits ?? 2,
     });
   }
-  return value.toLocaleString(undefined, {
+  return value.toLocaleString('en-US', {
     minimumFractionDigits: digits ?? 2,
     maximumFractionDigits: digits ?? 2,
   });
