@@ -4,6 +4,7 @@ import { useAccount, useReadContract, useWatchContractEvent } from 'wagmi';
 import { WATCHLIST_CONTRACT_ADDRESS, WATCHLIST_ABI } from '@/lib/contractConfig';
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
+import { fetcher } from '@/lib/coingecko.actions';
 
 export function WatchlistSection() {
   const { address, isConnected } = useAccount();
@@ -36,7 +37,6 @@ export function WatchlistSection() {
     },
   });
 
-  // 3. Jab IDs mil jayein, CoinGecko se unka live data fetch karo
   const fetchWatchlistPrices = useCallback(async (ids: string[]) => {
     if (ids.length === 0) {
       setWatchlistData([]);
@@ -44,10 +44,12 @@ export function WatchlistSection() {
     }
     try {
       const idsStr = ids.join(',');
-      const res = await fetch(
-        `https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=${idsStr}&order=market_cap_desc&sparkline=false`
-      );
-      const data = await res.json();
+      const data = await fetcher<any[]>('coins/markets', {
+        vs_currency: 'usd',
+        ids: idsStr,
+        order: 'market_cap_desc',
+        sparkline: false
+      });
       if (Array.isArray(data)) {
         setWatchlistData(data);
       }
