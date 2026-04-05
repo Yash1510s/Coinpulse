@@ -24,11 +24,23 @@
 .DS_Store
 *.pem
 
-# debug
+# IDE
+.idea/
+.vscode/
+
+# Junie
+.junie/
+
+# debug & temp files
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
+build_output.log
+checks.txt
+lint_errors.txt
+tsc_errors.txt
+tsc_errors2.txt
 
 # env files (can opt-in for committing if needed)
 .env*

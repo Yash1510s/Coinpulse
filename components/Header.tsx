@@ -1,5 +1,6 @@
 'use client';
 
+import { Suspense } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
@@ -30,7 +31,9 @@ const Header = () => {
           </Link>
 
           <SearchModal />
-          <CategorySelector />
+          <Suspense fallback={<div className="w-32 h-9 bg-white/5 animate-pulse rounded-lg" />}>
+            <CategorySelector />
+          </Suspense>
 
           <Link
             href="/coins"
