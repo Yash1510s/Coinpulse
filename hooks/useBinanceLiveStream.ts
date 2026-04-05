@@ -17,9 +17,10 @@ export interface LiveTicker {
   priceChangePercent: number;
 }
 
-export function useBinanceLiveStream(coinSymbol: string, updateIntervalMs: number = 30000) {
+export function useBinanceLiveStream(coinSymbol: string, liveInterval: '1s' | '1m' = '1s', updateIntervalMs: number = 30000) {
   const [trades, setTrades] = useState<BinanceTrade[]>([]);
   const [ticker, setTicker] = useState<LiveTicker | null>(null);
+  const [ohlcv, setOhlcv] = useState<[number, number, number, number, number] | null>(null);
   const accumulatedTrades = useRef<BinanceTrade[]>([]);
   const initialUpdateDone = useRef<boolean>(false);
 
@@ -30,8 +31,7 @@ export function useBinanceLiveStream(coinSymbol: string, updateIntervalMs: numbe
     const symbol = coinSymbol === 'bitcoin' ? 'btc' : coinSymbol.toLowerCase();
     const formattedSymbol = `${symbol}usdt`;
 
-    // COMBINED STREAM: Trade (Table ke liye) + Ticker (Price ke liye)
-    const wsUrl = `wss://stream.binance.com:9443/stream?streams=${formattedSymbol}@trade/${formattedSymbol}@ticker`;
+    const wsUrl = `wss://stream.binance.com:9443/stream?streams=${formattedSymbol}@trade/${formattedSymbol}@ticker/${formattedSymbol}@kline_${liveInterval}`;
     const ws = new WebSocket(wsUrl);
 
     ws.onmessage = (event) => {
@@ -41,15 +41,24 @@ export function useBinanceLiveStream(coinSymbol: string, updateIntervalMs: numbe
       const stream = message.stream;
       const data = message.data;
 
-      // 1. Agar data Ticker (Price) ka hai
       if (stream.includes('@ticker')) {
         setTicker({
-          price: parseFloat(data.c), // c = Current Price
-          priceChangePercent: parseFloat(data.P), // P = Price Change %
+          price: parseFloat(data.c),
+          priceChangePercent: parseFloat(data.P),
         });
       }
 
-      // 2. Agar data Trade (Table) ka hai
+      if (stream.includes('@kline')) {
+        const kline = data.k;
+        setOhlcv([
+          kline.t,
+          parseFloat(kline.o),
+          parseFloat(kline.h),
+          parseFloat(kline.l),
+          parseFloat(kline.c)
+        ]);
+      }
+
       if (stream.includes('@trade')) {
         const newTrade: BinanceTrade = {
           id: data.t.toString(),
@@ -60,10 +69,8 @@ export function useBinanceLiveStream(coinSymbol: string, updateIntervalMs: numbe
           time: new Date(data.T).toLocaleTimeString([], { hour12: false }),
         };
 
-        // Naya trade list mein dalo, aur sirf latest 100 rakho scroll karne ke liye
         accumulatedTrades.current = [newTrade, ...accumulatedTrades.current].slice(0, 100);
 
-        // Do a quick initial render after 1st trade so the table isn't empty for the first 30 seconds
         if (!initialUpdateDone.current && accumulatedTrades.current.length >= 1) {
           setTrades([...accumulatedTrades.current]);
           initialUpdateDone.current = true;
@@ -71,20 +78,17 @@ export function useBinanceLiveStream(coinSymbol: string, updateIntervalMs: numbe
       }
     };
 
-    // Update the React state every 30 seconds 
     const intervalId = setInterval(() => {
       if (accumulatedTrades.current.length > 0) {
         setTrades([...accumulatedTrades.current]);
       }
     }, updateIntervalMs);
 
-    // Jab component close ho toh connection band kar do
     return () => {
       ws.close();
       clearInterval(intervalId);
     };
-  }, [coinSymbol, updateIntervalMs]);
+  }, [coinSymbol, liveInterval, updateIntervalMs]);
 
-  // Yeh hook trades aur ticker dono wapas dega
-  return { trades, ticker };
+  return { trades, ticker, ohlcv };
 }
