@@ -43,7 +43,7 @@ const LiveDataWrapper = ({
     {
       header: 'Amount',
       cellClassName: 'amount-cell',
-      cell: (trade) => trade.amount?.toFixed(4) ?? '-',
+      cell: (trade) => trade.amount?.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 6 }) ?? '-',
     },
     {
       header: 'Value',
